@@ -14,7 +14,7 @@ export const requestFail = (error: AxiosRequestConfig) => {
 
 // 接收拦截器
 export const responseSuccess = (response: AxiosResponse) => {
-  return response;
+  return Promise.resolve(response);
 };
 
 export const responseFail = (error: AxiosResponse) => {

@@ -1,50 +1,112 @@
+<template>
+  <div
+    class="chat"
+    :style="{
+      '--bg-image': `url('${appStore.background}')`,
+    }"
+  >
+    <div class="chat-part1">
+      <genal-tool />
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
   import { ref } from 'vue';
-
+  import { useAppStore } from '@store/app';
+  import GenalTool from '@components/GenalTool.vue';
+  const appStore = useAppStore();
   defineProps<{ msg: string }>();
 
   const count = ref(0);
 </script>
 
-<template>
-  <h1>{{ msg }}</h1>
-
-  <p>
-    Recommended IDE setup:
-    <a href="https://code.visualstudio.com/" target="_blank">VSCode</a>
-    +
-    <a href="https://github.com/johnsoncodehk/volar" target="_blank">Volar</a>
-  </p>
-
-  <p>See <code>README.md</code> for more information.</p>
-
-  <p>
-    <a href="https://vitejs.dev/guide/features.html" target="_blank"> Vite Docs </a>
-    |
-    <a href="https://v3.vuejs.org/" target="_blank">Vue 3 Docs</a>
-  </p>
-
-  <button type="button" @click="count++">count is: {{ count }}</button>
-  <p>
-    Edit
-    <code>components/HelloWorld.vue</code> to test hot module replacement.
-  </p>
-</template>
-
-<style scoped>
-  a {
-    color: #42b983;
+<style lang="scss" scoped>
+  .chat {
+    font-size: 16px;
+    z-index: 999;
+    max-width: 1000px;
+    min-width: 300px;
+    width: 100%;
+    height: 80%;
+    max-height: 900px;
+    min-height: 470px;
+    position: relative;
+    margin: auto 20px;
+    box-shadow: 10px 20px 80px rgba(0, 0, 0, 0.8);
+    display: flex;
+    border-radius: 5px;
+    overflow: hidden;
+    .chat-part1 {
+      width: 74px;
+      height: 100%;
+      background-color: rgb(0, 0, 0, 0.7);
+    }
+    .chat-part2 {
+      width: 230px;
+      height: 100%;
+      background-color: rgb(0, 0, 0, 0.3);
+    }
+    .chat-part3 {
+      flex: 1;
+      height: 100%;
+      background-color: rgb(0, 0, 0, 0.2);
+      overflow-y: hidden;
+      position: relative;
+      .chat-group {
+        height: 53px;
+        border-bottom: 1px solid #ccc;
+        line-height: 50px;
+        font-weight: bold;
+      }
+    }
+    .chat-team {
+      display: none;
+    }
+    .chat-tool {
+      display: none;
+    }
   }
-
-  label {
-    margin: 0 0.5em;
-    font-weight: bold;
+  .chat::after {
+    content: '';
+    background: var(--bg-image) 0 / cover fixed;
+    position: absolute;
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    filter: blur(10px);
+    transform: scale(1.08);
+    z-index: -1;
   }
-
-  code {
-    background-color: #eee;
-    padding: 2px 4px;
-    border-radius: 4px;
-    color: #304455;
+  @media screen and (max-width: 768px) {
+    .chat {
+      margin: 0;
+      height: 100%;
+      .chat-part2 {
+        display: none;
+      }
+      .chat-team {
+        display: block !important;
+        position: absolute;
+        font-size: 25px;
+        top: 17px;
+        left: 60px;
+        z-index: 999;
+        &:active {
+          color: skyblue;
+        }
+      }
+      .chat-tool {
+        display: block !important;
+        position: absolute;
+        font-size: 25px;
+        top: 13px;
+        left: 20px;
+        z-index: 999;
+        &:active {
+          color: skyblue;
+        }
+      }
+    }
   }
 </style>

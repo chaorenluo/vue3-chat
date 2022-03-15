@@ -12,9 +12,11 @@
     "esModuleInterop": true,
     "lib": ["esnext", "dom"],
     "paths": {
-      "@/*": [
-        "@/*"
-      ]
+      "@/*": ["./src/*"],
+      "@api": ["./src/api"],
+      "@utils/*": ["./src/utils/*"],
+      "@store/*":["./src/store/modules/*"],
+      "@components/*": ["./src/components/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
