@@ -2,7 +2,9 @@ import { AxiosResponse } from 'axios';
 import { message } from 'ant-design-vue';
 export const processReturn = (res: AxiosResponse<ServerRes>) => {
   // code 0:成功 1:错误 2:后端报错
-  console.log('res----', res);
+  if (!res) {
+    return;
+  }
   const { code, msg, data } = res.data;
   if (code) {
     message.error(msg);
@@ -40,7 +42,7 @@ export function nameVerify(name: string): boolean {
  * @param password
  */
 export function passwordVerify(password: string): boolean {
-  const passwordReg = /^\w+$/gis;
+  const passwordReg = /^\w+$/is;
   if (password.length === 0) {
     message.error('请输入密码');
     return false;

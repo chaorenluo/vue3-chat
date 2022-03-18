@@ -32,7 +32,7 @@ export class HttpExceptionFilter implements ExceptionFilter<HttpException> {
         if (errorResponse.code === 401) {
             errorResponse.msg = '身份过期，请重新登录';
             response.status(200);
-            errorResponse.code = RCode.FAIL;
+            errorResponse.code = 401;
         }
         response.header('Content-Type', 'application/json; charset=utf-8');
         response.send(errorResponse);

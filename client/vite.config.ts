@@ -8,12 +8,15 @@ function pathResolve(dir: string) {
 export default defineConfig({
   plugins: [vue()],
   resolve: {
+    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue'],
+
     alias: {
       '@': pathResolve('src'),
       '@api': pathResolve('./src/api'),
       '@utils': pathResolve('./src/utils'),
       '@store': pathResolve('./src/store/modules'),
       '@components': pathResolve('./src/components'),
+      '@enum': pathResolve('./src/enum'),
     },
   },
   server: {

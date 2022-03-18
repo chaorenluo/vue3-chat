@@ -16,6 +16,7 @@
     );
     return !!(flag && flag.length);
   };
+
   onMounted(() => {
     appStore.setMobile(isMobile());
 

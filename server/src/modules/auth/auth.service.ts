@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entity/user.entity';
 import { RCode } from '../../common/constant/rcode';
-import { nameVerify, passwordVerify } from 'src/common/tool/utils';
+
 import { CustomException } from '../../common/filters/CustomException';
 
 @Injectable()
@@ -18,7 +18,7 @@ export class AuthService {
     async login(data: User): Promise<any> {
         const user = await this.userRepository.findOne({ userName: data.userName, password: data.password });
         if (!user) {
-            throw new CustomException('账号不存在或密码错误', RCode.FAIL, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomException('账号不存在或密码错误', RCode.FAIL, HttpStatus.OK);
         }
         const payload = { userId: user.userId, password: user.password };
         return {
@@ -35,10 +35,7 @@ export class AuthService {
         const isHave = await this.userRepository.find({ userName: user.userName });
         if (isHave.length > 0) {
             return { code: RCode.FAIL, msg: '用户名重复', data: '' };
-            throw new CustomException('用户名重复', RCode.FAIL, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        if (nameVerify(user.userName) || passwordVerify(user.password)) {
-            throw new CustomException('注册校验不通过！', RCode.FAIL, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomException('用户名重复', RCode.FAIL, HttpStatus.OK);
         }
         user.avatar = `api/avatar/avatar(${Math.round(Math.random() * 19 + 1)}).png`;
         user.role = 'user';

@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Patch, Post, Query, Request, UseGuards, UploadedFile } from '@nestjs/common';
+import { Body, Controller, Get, Post, Request, UseGuards, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '@nestjs/passport';
 import { Express } from 'express';
 import { UserService } from './user.service';
@@ -29,6 +30,7 @@ export class UserController {
     }
 
     @Post('/setUserAvatar')
+    @UseInterceptors(FileInterceptor('avatar'))
     setUserAvatar(@Request() req, @UploadedFile() file: Express.Multer.File) {
         return this.UserService.setUserAvatar(req.user, file);
     }

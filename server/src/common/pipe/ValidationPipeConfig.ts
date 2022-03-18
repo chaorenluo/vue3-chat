@@ -20,7 +20,7 @@ export class ValidationPipeConfig implements PipeTransform<any> {
                     errorMessageList.push(errorsObj[key]);
                 }
             });
-            throw new CustomException(errorMessageList.join(','), RCode.FAIL, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomException(errorMessageList.join(','), RCode.FAIL, HttpStatus.OK);
         }
         return value;
     }

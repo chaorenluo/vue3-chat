@@ -4,7 +4,7 @@
       <div class="tool-avatar-img" @click="showUserInfo()">
         <img v-if="user" :src="user.avatar" />
       </div>
-      <div class="tool-avatar-name">{{ user.username }}</div>
+      <div class="tool-avatar-name">{{ user.userName }}</div>
     </div>
     <a-tooltip placement="topLeft" arrow-point-at-center>
       <template #title>
@@ -15,7 +15,12 @@
     </a-tooltip>
     <SkinOutlined class="tool-skin icon" @click="showBackgroundModalRef = true" />
     <PoweroffOutlined class="tool-out icon" @click="logout" />
-    <a-modal v-model:visible="showUserModalRef" title="用户信息" @cancel="showUserModalRef = false">
+    <a-modal
+      v-model:visible="showUserModalRef"
+      title="用户信息"
+      @cancel="showUserModalRef = false"
+      :footer="null"
+    >
       <div class="tool-user">
         <div
           @mouseover="showUploadRef = true"
@@ -31,7 +36,6 @@
             :before-upload="beforeUpload"
           >
             <div class="text">
-              <a-icon type="upload" style="margin-right: 4px" />
               <UploadOutlined style="margin-right: 4px" />
               <span>更换头像</span>
             </div>
@@ -58,6 +62,7 @@
       v-model:visible="showBackgroundModalRef"
       title="用户信息"
       @cancel="showBackgroundModalRef = false"
+      :footer="null"
     >
       <div class="tool-user-info">
         <div class="tool-user-title" style="width: 65px">
@@ -66,7 +71,6 @@
             <template #title>
               <span>输入空格时为默认背景, 支持 jpg, png, gif等格式</span>
             </template>
-            <a-icon type="exclamation-circle" style="margin-left: 5px" />
             <ExclamationCircleOutlined style="margin-left: 5px" />
           </a-tooltip>
         </div>
@@ -93,14 +97,17 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, defineEmits } from 'vue';
-  import { processReturn, nameVerify, passwordVerify } from '@/utils/common.ts';
+  import { ref, computed } from 'vue';
+  import { processReturn, nameVerify, passwordVerify } from '@utils/common';
   import { useAppStore } from '@store/app';
   import apis from '@/api';
-  import { Background } from '../enum';
+  import { Background } from '@enum/index';
 
   const appStore = useAppStore();
-  const user = appStore.user;
+  const user = computed(() => {
+    return appStore.user;
+  });
+
   const backgroundList = ref([
     {
       name: '阿童木',
@@ -134,8 +141,8 @@
   const passwordRef = ref('');
   const backgroundRef = ref('');
   const uploadingRef = ref(false);
-  const avatarRef = ref('');
-  const emit = defineEmits(['logout']);
+  let avatarRef: File;
+  const emit = defineEmits<(eventName: 'logout') => void>();
 
   const logout = () => {
     emit('logout');
@@ -181,7 +188,7 @@
     if (!isLt1M) {
       message.error('图片必须小于500K!');
     }
-    avatarRef.value = file;
+    avatarRef = file;
     handleUpload();
     return false;
   };
@@ -189,7 +196,7 @@
   const handleUpload = async () => {
     uploadingRef.value = true;
     const formData = new FormData();
-    formData.append('avatar', avatarRef.value);
+    formData.append('avatar', avatarRef);
     let data = processReturn(await apis.user.setUserAvatar(formData));
     uploadingRef.value = false;
     if (data) {
@@ -199,7 +206,7 @@
   };
 
   const changeBackground = () => {
-    let background = !appStore.getBackground.trim().length
+    let background = !appStore.background.trim().length
       ? Background.DEFAULT_BACKGROUND
       : backgroundRef.value;
     appStore.setBackground(background);

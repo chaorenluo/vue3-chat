@@ -4,7 +4,9 @@ import {
   PoweroffOutlined,
   LoadingOutlined,
   ExclamationCircleOutlined,
+  UploadOutlined,
 } from '@ant-design/icons-vue';
+
 import { App } from 'vue';
 
 export const setupIcon = (app: App<Element>) => {
@@ -14,6 +16,7 @@ export const setupIcon = (app: App<Element>) => {
     PoweroffOutlined,
     LoadingOutlined,
     ExclamationCircleOutlined,
+    UploadOutlined,
   };
 
   for (const componentKey in component) {

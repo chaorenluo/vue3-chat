@@ -6,19 +6,54 @@
     }"
   >
     <div class="chat-part1">
-      <genal-tool />
+      <genal-tool @logout="logout" />
     </div>
+    <genal-join
+      @register="handleRegister"
+      @login="handleLogin"
+      :loading="loadingRef"
+      :showModal="showModalRef"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { useUser } from '@/hooks/userUser';
   import { useAppStore } from '@store/app';
   import GenalTool from '@components/GenalTool.vue';
-  const appStore = useAppStore();
-  defineProps<{ msg: string }>();
+  import GenalJoin from '@components/GenalJoin.vue';
+  import { ref } from 'vue';
 
-  const count = ref(0);
+  const appStore = useAppStore();
+  const loadingRef = ref(false);
+  const { showModalRef, getUser } = useUser();
+  getUser();
+
+  const unifiedUserWith = async (fn: Function) => {
+    loadingRef.value = true;
+    let res = await fn();
+    loadingRef.value = false;
+    if (res) {
+      showModalRef.value = false;
+    }
+    return res;
+  };
+
+  // 注册
+  const handleRegister = async (user: pickUser) => {
+    await unifiedUserWith(async () => await appStore.register(user));
+  };
+
+  // 登录
+  const handleLogin = async (user: pickUser) => {
+    await unifiedUserWith(async () => await appStore.login(user));
+  };
+
+  //注销
+  const logout = () => {
+    appStore.clearUser();
+    showModalRef.value = true;
+  };
 </script>
 
 <style lang="scss" scoped>

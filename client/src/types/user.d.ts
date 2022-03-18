@@ -7,3 +7,4 @@ interface User {
   tag?: string;
   createTime: number;
 }
+type pickUser = Pick<User, 'userName' | 'password'>;

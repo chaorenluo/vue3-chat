@@ -11,12 +11,21 @@ const user = {
       ...payload,
     });
   },
+
+  /**
+   * 获取用户
+   * @param params
+   */
+  getUser() {
+    return fetch.get('/user');
+  },
+
   /**
    * 更新用户名
    * @param params
    */
   updateUserName(userName: string) {
-    return fetch.post('/user/username', {
+    return fetch.post('/user/updateUsername', {
       userName,
     });
   },
@@ -25,7 +34,7 @@ const user = {
    * @param params
    */
   updatePassword(password: string) {
-    return fetch.post(`/user/password`, {
+    return fetch.post(`/user/updatePassword`, {
       password,
     });
   },

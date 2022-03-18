@@ -20,8 +20,6 @@ const getDefaultUser = (): User => {
   };
 };
 
-type pickUser = Pick<User, 'userName' | 'password'>;
-
 export const useAppStore = defineStore({
   id: 'app-store',
   state: (): AppState => ({
@@ -46,8 +44,18 @@ export const useAppStore = defineStore({
       if (data) {
         this.setToken(data.token);
         this.setUser(data.user);
+        return data;
       }
       return data;
+    },
+    async getUser() {
+      const res = await api.user.getUser();
+      const data = processReturn(res);
+      if (data.code === 401) {
+        return new Error('登录失效');
+      } else {
+        this.setUser(data);
+      }
     },
     setToken(payload: string) {
       this.token = payload;
@@ -63,8 +71,9 @@ export const useAppStore = defineStore({
     setMobile(payload: boolean) {
       this.mobile = payload as any;
     },
-    clear_user() {
+    clearUser() {
       this.user = getDefaultUser();
+      cookie.remove('token');
     },
   },
 });
