@@ -16,7 +16,7 @@ export class UserService {
     ) {}
 
     async updateUserName(user: User, userName: string) {
-        if (user) {
+        try {
             const isHaveName = await this.userRepository.findOne({ userName });
             if (isHaveName) {
                 throw new CustomException('用户名重复', RCode.FAIL);
@@ -25,33 +25,43 @@ export class UserService {
             newUser.userName = userName;
             await this.userRepository.update(user, newUser);
             return { msg: '更新用户名成功', data: newUser };
+        } catch (e) {
+            throw new CustomException('更新失败', RCode.FAIL);
         }
-        throw new CustomException('更新失败', RCode.FAIL);
     }
 
     async updatePassword(user: User, password: string) {
-        if (user) {
+        try {
             const newUser = JSON.parse(JSON.stringify(user)) as User;
             newUser.password = password;
             await this.userRepository.update(user, newUser);
             return { msg: '更新用户密码成功', data: newUser };
+        } catch (e) {
+            throw new CustomException('更新失败:' + e, RCode.FAIL);
         }
-        return { code: RCode.FAIL, msg: '更新失败', data: '' };
     }
 
     async getUsersByName(userName: string) {
-        const users = await this.userRepository.find({
-            where: { userName: Like(`%${userName}%`) },
-        });
-        return { data: users };
+        try {
+            const users = await this.userRepository.find({
+                where: { userName: Like(`%${userName}%`) },
+            });
+            return { data: users };
+        } catch (e) {
+            throw new CustomException('查询失败:' + e, RCode.FAIL);
+        }
     }
 
     async setUserAvatar(user: User, file: Express.Multer.File) {
-        const random = Date.now() + '&';
-        const stream = createWriteStream(join('public/avatar', random + file.originalname));
-        stream.write(file.buffer);
-        user.avatar = `api/avatar/${random}${file.originalname}`;
-        await this.userRepository.save(user);
-        return { msg: '修改头像成功', data: user };
+        try {
+            const random = Date.now() + '&';
+            const stream = createWriteStream(join('public/avatar', random + file.originalname));
+            stream.write(file.buffer);
+            user.avatar = `api/avatar/${random}${file.originalname}`;
+            await this.userRepository.save(user);
+            return { msg: '修改头像成功', data: user };
+        } catch (e) {
+            throw new CustomException('修改头像失败:' + e, RCode.FAIL);
+        }
     }
 }

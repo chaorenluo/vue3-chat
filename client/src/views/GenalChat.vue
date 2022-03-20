@@ -8,6 +8,7 @@
     <div class="chat-part1">
       <genal-tool @logout="logout" />
     </div>
+    <div class="chat-part2"> 1 </div>
     <genal-join
       @register="handleRegister"
       @login="handleLogin"
