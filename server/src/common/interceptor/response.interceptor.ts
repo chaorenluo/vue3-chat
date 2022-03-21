@@ -1,6 +1,6 @@
 import { NestInterceptor, ExecutionContext, CallHandler, Injectable } from '@nestjs/common';
 import { map } from 'rxjs/operators';
-import { RCode } from '../constant/rcode';
+import { RCode } from '../constant';
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {

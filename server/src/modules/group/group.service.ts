@@ -4,8 +4,7 @@ import { Group, GroupMap } from './entity/group.entity';
 import { Repository, getRepository, Like } from 'typeorm';
 import { GroupMessage } from './entity/groupMessage.entity';
 import { CustomException } from '../../common/filters/CustomException';
-import { RCode } from '../../common/constant/rcode';
-import { User } from '../user/entity/user.entity';
+import { RCode } from '../../common/constant';
 
 @Injectable()
 export class GroupService {
@@ -40,14 +39,8 @@ export class GroupService {
             if (!userId) {
                 throw new CustomException('缺少用户id', RCode.FAIL);
             }
-            let data = [];
-            const status = userId ? true : false;
-            if (status) {
-                data = await this.groupMapRepository.find({ userId });
-            } else {
-                data = await this.groupMapRepository.find();
-            }
-            return { msg: status ? '获取用户所有群成功' : '获取系统所有群成功', data };
+            const data = await this.groupMapRepository.find({ userId });
+            return { msg: '获取用户所有群成功', data };
         } catch (e) {
             throw new CustomException('获取用户的群失败:' + e, RCode.FAIL);
         }

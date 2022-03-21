@@ -1,6 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 import { CustomException } from './CustomException';
-import { RCode } from '../constant/rcode';
+import { RCode } from '../constant';
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter<HttpException> {
     catch(exception: HttpException, host: ArgumentsHost) {

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entity/user.entity';
 import { Repository, Like } from 'typeorm';
 import { join } from 'path';
-import { RCode } from '../../common/constant/rcode';
+import { RCode } from '../../common/constant';
 import { CustomException } from '../../common/filters/CustomException';
 import { createWriteStream } from 'fs';
 import { Express } from 'express';

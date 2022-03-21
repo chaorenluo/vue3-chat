@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entity/user.entity';
-import { RCode } from '../../common/constant/rcode';
+import { RCode } from '../../common/constant';
 
 import { CustomException } from '../../common/filters/CustomException';
 

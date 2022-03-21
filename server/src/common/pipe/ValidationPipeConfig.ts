@@ -2,7 +2,7 @@ import { ArgumentMetadata, Injectable, PipeTransform, BadRequestException, HttpS
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 import { CustomException } from '../filters/CustomException';
-import { RCode } from '../constant/rcode';
+import { RCode } from '../constant';
 
 @Injectable()
 export class ValidationPipeConfig implements PipeTransform<any> {
