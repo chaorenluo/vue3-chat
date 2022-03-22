@@ -21,11 +21,13 @@
 <script setup lang="ts">
   import { useUser } from '@/hooks/userUser';
   import { useAppStore } from '@store/app';
+  import { useChatStore } from '@store/chat';
   import GenalTool from '@components/GenalTool.vue';
   import GenalJoin from '@components/GenalJoin.vue';
   import { ref } from 'vue';
 
   const appStore = useAppStore();
+  const chatStore = useChatStore();
   const loadingRef = ref(false);
   const { showModalRef, getUser } = useUser();
   getUser();
@@ -37,6 +39,7 @@
     if (res) {
       showModalRef.value = false;
     }
+    chatStore.connectSocket();
     return res;
   };
 
