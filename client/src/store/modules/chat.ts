@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { Socket } from 'socket.io-client';
 import { useAppStore } from '@store/app';
 import { io } from 'socket.io-client';
+import { initSocketEvent, socketEvent } from '@utils/socket/handleSocketEvent';
 
 export interface ChatState {
   socket: Socket;
@@ -30,12 +31,13 @@ export const useChatStore = defineStore({
     async connectSocket() {
       const appStore = useAppStore();
       const user = appStore.user;
-      console.log('---3');
-      this.socket = io(`ws://localhost:3000/?userId=${user.userId}`, { reconnection: true });
+
+      this.socket = io(`http://localhost:3001/?userId=${user.userId}`, { reconnection: true });
       this.socket.on('connect', () => {
-        console.log('连接成功');
-        this.socket.emit('chatData', user);
+        this.socket.emit(socketEvent.CHATDATA.name, user);
       });
+      //初始化事件监听
+      initSocketEvent(this.socket as Socket, this);
     },
   },
 });

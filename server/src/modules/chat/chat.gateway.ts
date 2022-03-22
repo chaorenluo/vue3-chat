@@ -13,7 +13,11 @@ import { join } from 'path';
 import { UserMap } from '../friend/entity/friend.entity';
 import { FriendMessage } from '../friend/entity/friendMessage.entity';
 
-@WebSocketGateway()
+@WebSocketGateway({
+    cors: {
+        origin: '*',
+    },
+})
 export class ChatGateway {
     // 默认群
     defaultGroup = '阿童木聊天室';
@@ -38,6 +42,7 @@ export class ChatGateway {
 
     //socket连接钩子
     async handleConnection(client: Socket): Promise<string> {
+        console.log('连接成功');
         const userRoom = client.handshake.query.userId;
         // 连接加入默认房间
         client.join(this.defaultGroup);
