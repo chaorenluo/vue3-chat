@@ -42,9 +42,9 @@ const user = {
    * 用户名模糊搜索用户
    * @param username
    */
-  getUserByName(username: string) {
-    return fetch.get('/user/findByName', {
-      params: { username },
+  getUserByName(userName: string) {
+    return fetch.get('/user/getUserByName', {
+      params: { userName },
     });
   },
   /**

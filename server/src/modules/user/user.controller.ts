@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Request, UseGuards, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Post, Request, UseGuards, UploadedFile, UseInterceptors, Query } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '@nestjs/passport';
 import { Express } from 'express';
@@ -24,8 +24,8 @@ export class UserController {
         return this.UserService.updatePassword(req.user, updatePasswordDto.password);
     }
 
-    @Post('/getUserByName')
-    getUserByName(@Body() userByNameDto: userByNameDto) {
+    @Get('/getUserByName')
+    getUserByName(@Query() userByNameDto: userByNameDto) {
         return this.UserService.getUsersByName(userByNameDto.userName);
     }
 

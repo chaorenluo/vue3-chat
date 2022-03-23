@@ -8,7 +8,9 @@
     <div class="chat-part1">
       <genal-tool @logout="logout" />
     </div>
-    <div class="chat-part2"> 1 </div>
+    <div class="chat-part2">
+      <genal-search @add-group="addGroup" />
+    </div>
     <genal-join
       @register="handleRegister"
       @login="handleLogin"
@@ -24,7 +26,9 @@
   import { useChatStore } from '@store/chat';
   import GenalTool from '@components/GenalTool.vue';
   import GenalJoin from '@components/GenalJoin.vue';
+  import GenalSearch from '@components/GenalSearch.vue';
   import { ref } from 'vue';
+  import { EventName } from '@utils/socket/handleSocketEvent';
 
   const appStore = useAppStore();
   const chatStore = useChatStore();
@@ -38,8 +42,8 @@
     loadingRef.value = false;
     if (res) {
       showModalRef.value = false;
+      chatStore.connectSocket();
     }
-    chatStore.connectSocket();
     return res;
   };
 
@@ -57,6 +61,32 @@
   const logout = () => {
     appStore.clearUser();
     showModalRef.value = true;
+  };
+
+  // 创建群组
+  const addGroup = (groupName: string) => {
+    chatStore.emit(EventName.ADD_GROUP, {
+      userId: appStore.user.userId,
+      groupName: groupName,
+      createTime: new Date().valueOf(),
+    });
+  };
+
+  // 加入群组
+  const joinGroup = (groupId: string) => {
+    chatStore.emit(EventName.JOIN_GROUP, {
+      userId: appStore.user.userId,
+      groupId: groupId,
+    });
+  };
+
+  // 添加好友
+  const addFriend = (friendId: string) => {
+    chatStore.emit(EventName.ADD_FRIEND, {
+      userId: appStore.user.userId,
+      friendId: friendId,
+      createTime: new Date().valueOf(),
+    });
   };
 </script>
 

@@ -5,6 +5,7 @@ import {
   LoadingOutlined,
   ExclamationCircleOutlined,
   UploadOutlined,
+  PlusCircleOutlined,
 } from '@ant-design/icons-vue';
 
 import { App } from 'vue';
@@ -17,6 +18,7 @@ export const setupIcon = (app: App<Element>) => {
     LoadingOutlined,
     ExclamationCircleOutlined,
     UploadOutlined,
+    PlusCircleOutlined,
   };
 
   for (const componentKey in component) {

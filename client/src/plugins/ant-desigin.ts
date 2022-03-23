@@ -18,6 +18,8 @@ import {
   Drawer,
   Popconfirm,
   Badge,
+  Menu,
+  MenuItem,
 } from 'ant-design-vue';
 export const setupDesign = (app: App<Element>) => {
   const component = [
@@ -38,6 +40,8 @@ export const setupDesign = (app: App<Element>) => {
     Drawer,
     Popconfirm,
     Badge,
+    Menu,
+    MenuItem,
   ];
   component.forEach((item) => {
     app.use(item);

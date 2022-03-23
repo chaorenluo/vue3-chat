@@ -55,7 +55,7 @@ declare enum MessageType {
 // 好友
 interface Friend {
   userId: string;
-  username: string;
+  userName: string;
   avatar: string;
   role?: string;
   tag?: string;

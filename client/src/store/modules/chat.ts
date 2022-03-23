@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { Socket } from 'socket.io-client';
 import { useAppStore } from '@store/app';
 import { io } from 'socket.io-client';
-import { initSocketEvent, socketEvent } from '@utils/socket/handleSocketEvent';
+import { initSocketEvent, EventName } from '@utils/socket/handleSocketEvent';
 
 export interface ChatState {
   socket: Socket;
@@ -11,6 +11,7 @@ export interface ChatState {
   activeRoom: (Group & Friend) | null;
   groupGather: GroupGather;
   userGather: FriendGather;
+  friendGather: FriendGather;
   unReadGather: UnReadGather;
 }
 
@@ -28,16 +29,20 @@ export const useChatStore = defineStore({
     unReadGather: {},
   }),
   actions: {
+    emit(name: EventName, data?: any) {
+      this.socket && this.socket.emit(name, data);
+    },
     async connectSocket() {
       const appStore = useAppStore();
       const user = appStore.user;
 
       this.socket = io(`http://localhost:3001/?userId=${user.userId}`, { reconnection: true });
       this.socket.on('connect', () => {
-        this.socket.emit(socketEvent.CHATDATA.name, user);
+        this.emit(EventName.CHAT_DATA, user);
       });
       //初始化事件监听
       initSocketEvent(this.socket as Socket, this);
     },
+    handleChatData(data: any) {},
   },
 });

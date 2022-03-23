@@ -76,7 +76,7 @@ export class GroupService {
         }
         try {
             const groups = await this.groupRepository.find({ groupName: Like(`%${groupName}%`) });
-            return { msg: '查询成功', ata: groups };
+            return { msg: '查询成功', data: groups };
         } catch (e) {
             throw new CustomException('查找群错误:' + e, RCode.FAIL);
         }

@@ -91,6 +91,10 @@ export class ChatGateway {
             }
             data = await this.groupRepository.save(data);
             client.join(data.groupId);
+            const group = await this.groupMapRepository.save(data);
+            this.server
+                .to(data.userId)
+                .emit('addGroup', { code: RCode.OK, msg: `成功创建群${data.groupName}`, data: group });
             return this.getActiveGroupUser();
         } else {
             emit(SocketEventName.ADDGROUP, { code: RCode.FAIL, msg: '你没资格创建群', data: '' });
@@ -129,19 +133,22 @@ export class ChatGateway {
     //加入群组socket连接
     @SubscribeMessage(SocketEventName.JOINGROUPSOCKET)
     async joinGroupSocket(@ConnectedSocket() client: Socket, @MessageBody() data: GroupMap): Promise<any> {
+        console.log(data);
         const group = await this.groupRepository.findOne({ groupId: data.groupId });
         const user = await this.userRepository.findOne({ userId: data.userId });
-        const emit = this.server.to(data.userId).emit;
         if (group && user) {
             client.join(data.groupId);
             const res = { group: group, user: user };
-            emit(SocketEventName.JOINGROUPSOCKET, {
+            console.log(user, group, SocketEventName.JOINGROUPSOCKET);
+            this.server.to(data.userId).emit(SocketEventName.JOINGROUPSOCKET, {
                 code: RCode.OK,
                 msg: `${user.userName}加入群${group.groupName}`,
                 data: res,
             });
         } else {
-            emit(SocketEventName.JOINGROUPSOCKET, { code: RCode.FAIL, msg: '进群失败', data: '' });
+            this.server
+                .to(data.userId)
+                .emit(SocketEventName.JOINGROUPSOCKET, { code: RCode.FAIL, msg: '进群失败', data: '' });
         }
     }
 
@@ -392,7 +399,7 @@ export class ChatGateway {
             if (user && userGroupArr.length) {
                 userGroupArr.map((item) => {
                     let data = activeGroupUserGather[item.groupId];
-                    if (data) {
+                    if (!data) {
                         data = {};
                     }
                     data[userId] = user;
