@@ -8,9 +8,10 @@ import { User } from '../user/entity/user.entity';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
 import { LocalStrategy } from './local.strategy';
+import { GroupMap } from '../group/entity/group.entity';
 @Module({
     imports: [
-        TypeOrmModule.forFeature([User]),
+        TypeOrmModule.forFeature([User, GroupMap]),
         JwtModule.register({
             secret: jwtConstants.secret,
             signOptions: { expiresIn: '3h' },

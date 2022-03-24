@@ -94,7 +94,7 @@ export class ChatGateway {
             const group = await this.groupMapRepository.save(data);
             this.server
                 .to(data.userId)
-                .emit('addGroup', { code: RCode.OK, msg: `成功创建群${data.groupName}`, data: group });
+                .emit('addGroup', { code: RCode.OK, msg: `成功创建群${data.groupName}`, data: { group } });
             return this.getActiveGroupUser();
         } else {
             emit(SocketEventName.ADDGROUP, { code: RCode.FAIL, msg: '你没资格创建群', data: '' });
@@ -105,7 +105,6 @@ export class ChatGateway {
     @SubscribeMessage(SocketEventName.JOINGROUP)
     async joinGroup(@ConnectedSocket() client: Socket, @MessageBody() data: GroupMap): Promise<any> {
         const isUser = await this.userRepository.findOne({ userId: data.userId });
-        const emit = this.server.to(data.userId).emit;
         if (isUser) {
             const group = await this.groupRepository.findOne({ groupId: data.groupId });
             let userGroup = await this.groupMapRepository.findOne({ groupId: group.groupId, userId: data.userId });
@@ -115,18 +114,20 @@ export class ChatGateway {
                     userGroup = await this.groupMapRepository.save(data);
                 }
                 client.join(data.groupId);
-                const res = { group, isUser };
-                emit(SocketEventName.JOINGROUP, {
+                const res = { group, user: isUser };
+                this.server.to(group.groupId).emit(SocketEventName.JOINGROUP, {
                     code: RCode.OK,
                     msg: `${isUser.userName}加入群${group.groupName}`,
                     data: res,
                 });
                 return this.getActiveGroupUser();
             } else {
-                emit(SocketEventName.JOINGROUP, { code: RCode.FAIL, msg: '进群失败', data: '' });
+                this.server
+                    .to(data.userId)
+                    .emit(SocketEventName.JOINGROUP, { code: RCode.FAIL, msg: '进群失败', data: '' });
             }
         } else {
-            emit(SocketEventName.JOINGROUP, { code: RCode.FAIL, msg: '你没资格进群' });
+            this.server.to(data.userId).emit(SocketEventName.JOINGROUP, { code: RCode.FAIL, msg: '你没资格进群' });
         }
     }
 
@@ -175,21 +176,25 @@ export class ChatGateway {
     @SubscribeMessage(SocketEventName.ADDFRIEND)
     async addFriend(@ConnectedSocket() client: Socket, @MessageBody() data: UserMap): Promise<any> {
         const isUser = await this.userRepository.findOne({ userId: data.userId });
-        const userEmit = this.server.to(data.userId).emit;
         if (isUser && data.friendId) {
-            const friendEmit = this.server.to(data.friendId).emit;
             if (data.userId === data.friendId) {
-                userEmit(SocketEventName.ADDFRIEND, { code: RCode.FAIL, msg: '不能添加自己为好友', data: '' });
+                this.server
+                    .to(data.userId)
+                    .emit(SocketEventName.ADDFRIEND, { code: RCode.FAIL, msg: '不能添加自己为好友', data: '' });
                 return;
             }
             const relation = await this.userMapRepository.findOne({ userId: data.userId, friendId: data.friendId });
             if (relation) {
-                userEmit(SocketEventName.ADDFRIEND, { code: RCode.FAIL, msg: '已经有该好友', data: '' });
+                this.server
+                    .to(data.userId)
+                    .emit(SocketEventName.ADDFRIEND, { code: RCode.FAIL, msg: '已经有该好友', data: '' });
                 return;
             }
             const friend = await this.userRepository.findOne({ userId: data.friendId });
             if (!friend) {
-                userEmit(SocketEventName.ADDFRIEND, { code: RCode.FAIL, msg: '该好友不存在', data: '' });
+                this.server
+                    .to(data.userId)
+                    .emit(SocketEventName.ADDFRIEND, { code: RCode.FAIL, msg: '该好友不存在', data: '' });
                 return;
             }
             const user = await this.userRepository.findOne({ userId: data.userId });
@@ -219,18 +224,18 @@ export class ChatGateway {
                 .getMany();
             messages = messages.reverse();
 
-            userEmit(SocketEventName.ADDFRIEND, {
+            this.server.to(data.userId).emit(SocketEventName.ADDFRIEND, {
                 code: RCode.OK,
                 msg: `添加好友${friend.userName}成功`,
                 data: messages,
             });
-            friendEmit(SocketEventName.ADDFRIEND, {
+            this.server.to(data.friendId).emit(SocketEventName.ADDFRIEND, {
                 code: RCode.OK,
                 msg: `${user.userName}添加你为好友`,
                 data: messages,
             });
         } else {
-            userEmit(SocketEventName.ADDFRIEND, { code: RCode.FAIL, msg: '你没资格加好友' });
+            this.server.to(data.userId).emit(SocketEventName.ADDFRIEND, { code: RCode.FAIL, msg: '你没资格加好友' });
         }
     }
 
@@ -271,6 +276,7 @@ export class ChatGateway {
     //获取所有群和好友数据
     @SubscribeMessage(SocketEventName.CHATDATA)
     async getAllData(@ConnectedSocket() client: Socket, @MessageBody() user: User): Promise<any> {
+        console.log('***11');
         const isUser = await this.userRepository.findOne({ userId: user.userId });
         if (isUser) {
             const userGather: { [key: string]: User } = {};
@@ -300,7 +306,7 @@ export class ChatGateway {
             });
 
             const friendPromise = friendMap.map(async (item) => {
-                return await this.userRepository.findOne({ userId: item.userId });
+                return await this.userRepository.findOne({ userId: item.friendId });
             });
 
             const friendMessagePromise = friendMap.map(async (item) => {
@@ -311,7 +317,7 @@ export class ChatGateway {
                         userId: item.userId,
                         friendId: item.friendId,
                     })
-                    .orWhere('friendMessage.userId=:friendId friendMessage.friendId=:userId', {
+                    .orWhere('friendMessage.userId=:friendId AND friendMessage.friendId=:userId', {
                         userId: item.userId,
                         friendId: item.friendId,
                     })
@@ -388,28 +394,30 @@ export class ChatGateway {
     //获取当前每个群在线人数以及在线人的用户信息
     async getActiveGroupUser() {
         //从socket找到连接人数
-        let userIdArr = Object.values(this.server.engine.clients).map((item: any) => {
-            return item.request._query.userId;
-        });
-        userIdArr = Array.from(new Set(userIdArr));
-        const activeGroupUserGather = {};
-        for (const userId of userIdArr) {
-            const userGroupArr = await this.groupMapRepository.find({ userId });
-            const user = await this.userRepository.findOne({ userId });
-            if (user && userGroupArr.length) {
-                userGroupArr.map((item) => {
-                    let data = activeGroupUserGather[item.groupId];
-                    if (!data) {
-                        data = {};
-                    }
-                    data[userId] = user;
-                });
+        try {
+            let userIdArr = Object.values(this.server.engine.clients).map((item: any) => {
+                return item.request._query.userId;
+            });
+            userIdArr = Array.from(new Set(userIdArr));
+            const activeGroupUserGather = {};
+
+            for (const userId of userIdArr) {
+                const userGroupArr = await this.groupMapRepository.find({ userId });
+                const user = await this.userRepository.findOne({ userId });
+                if (user && userGroupArr.length) {
+                    userGroupArr.map((item) => {
+                        if (!activeGroupUserGather[item.groupId]) {
+                            activeGroupUserGather[item.groupId] = {};
+                        }
+                        activeGroupUserGather[item.groupId][userId] = user;
+                    });
+                }
             }
-        }
-        //网当前房间里面发射一个事件
-        this.server.to(this.defaultGroup).emit('activeGroupUser', {
-            msg: 'activeGroupUser',
-            data: activeGroupUserGather,
-        });
+            //网当前房间里面发射一个事件
+            this.server.to(this.defaultGroup).emit('activeGroupUser', {
+                msg: 'activeGroupUser',
+                data: activeGroupUserGather,
+            });
+        } catch (error) {}
     }
 }

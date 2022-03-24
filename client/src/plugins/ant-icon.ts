@@ -6,6 +6,9 @@ import {
   ExclamationCircleOutlined,
   UploadOutlined,
   PlusCircleOutlined,
+  TeamOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
 } from '@ant-design/icons-vue';
 
 import { App } from 'vue';
@@ -19,6 +22,9 @@ export const setupIcon = (app: App<Element>) => {
     ExclamationCircleOutlined,
     UploadOutlined,
     PlusCircleOutlined,
+    TeamOutlined,
+    MenuFoldOutlined,
+    MenuUnfoldOutlined,
   };
 
   for (const componentKey in component) {

@@ -62,3 +62,11 @@ export function passwordVerify(password: string): boolean {
 export function isContainStr(str1: string, str2: string) {
   return str2.indexOf(str1) >= 0;
 }
+
+/**
+ * 屏蔽词
+ * @param text 文本
+ */
+export function parseText(text: string) {
+  return text;
+}

@@ -9,7 +9,20 @@
       <genal-tool @logout="logout" />
     </div>
     <div class="chat-part2">
-      <genal-search @add-group="addGroup" />
+      <genal-search
+        @add-group="addGroup"
+        @join-group="joinGroup"
+        @set-active-room="setActiveRoom"
+        @add-friend="addFriend"
+      />
+      <genal-room @set-active-room="setActiveRoom" />
+    </div>
+    <div class="chat-part3">
+      <TeamOutlined class="chat-team" />
+      <div class="chat-tool">
+        <MenuFoldOutlined />
+        <MenuUnfoldOutlined />
+      </div>
     </div>
     <genal-join
       @register="handleRegister"
@@ -27,6 +40,7 @@
   import GenalTool from '@components/GenalTool.vue';
   import GenalJoin from '@components/GenalJoin.vue';
   import GenalSearch from '@components/GenalSearch.vue';
+  import GenalRoom from '@components/GenalRoom.vue';
   import { ref } from 'vue';
   import { EventName } from '@utils/socket/handleSocketEvent';
 
@@ -74,6 +88,7 @@
 
   // 加入群组
   const joinGroup = (groupId: string) => {
+    alert(groupId);
     chatStore.emit(EventName.JOIN_GROUP, {
       userId: appStore.user.userId,
       groupId: groupId,
@@ -87,6 +102,10 @@
       friendId: friendId,
       createTime: new Date().valueOf(),
     });
+  };
+
+  const setActiveRoom = (room: Friend & Group) => {
+    chatStore.setActiveRoom(room);
   };
 </script>
 

@@ -43,6 +43,13 @@ export const useChatStore = defineStore({
       //初始化事件监听
       initSocketEvent(this.socket as Socket, this);
     },
-    handleChatData(data: any) {},
+    // 给某个聊天组清空未读消息
+    loseUnreadGather(id: string) {
+      this.unReadGather[id] = 0;
+    },
+    //设置当前聊天对象
+    setActiveRoom(data: Group & Friend) {
+      this.activeRoom = data;
+    },
   },
 });

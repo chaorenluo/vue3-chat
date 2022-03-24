@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entity/user.entity';
 import { RCode } from '../../common/constant';
-
+import { GroupMap } from '../group/entity/group.entity';
 import { CustomException } from '../../common/filters/CustomException';
 
 @Injectable()
@@ -12,6 +12,8 @@ export class AuthService {
     constructor(
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
+        @InjectRepository(GroupMap)
+        private readonly groupMapRepository: Repository<GroupMap>,
         private readonly jwtService: JwtService
     ) {}
 
@@ -41,6 +43,11 @@ export class AuthService {
         user.role = 'user';
         const newUser = await this.userRepository.save(user);
         const payload = { userId: newUser.userId, password: newUser.password };
+        //注册成功默认加入阿头木群组
+        await this.groupMapRepository.save({
+            userId: newUser.userId,
+            groupId: '阿童木聊天室',
+        });
         return {
             msg: '注册成功',
             data: {

@@ -1,6 +1,8 @@
 import { Socket } from 'socket.io-client';
+import { message } from 'ant-design-vue';
 import { useChatStore } from '@store/chat';
 import { useAppStore } from '@store/app';
+import { DEFAULT_GROUP } from '@/enum';
 
 type ChatStoreType<T = typeof useChatStore> = T extends () => infer P ? P : any;
 
@@ -17,11 +19,39 @@ export enum EventName {
   CHAT_DATA = 'chatData',
   EXIT_GROUP = 'exitGroup',
   EXIT_FRIEND = 'exitFriend',
+  ACTIVE_GROUP_USER = 'activeGroupUser',
 }
 
 export const eventCallback: EventCallbackType = {
-  async addGroup(res: ServerRes, _this: ChatStoreType) {},
-  async joinGroup(res: ServerRes, _this: ChatStoreType) {},
+  async addGroup(res: ServerRes, _this: ChatStoreType) {
+    if (res.code) {
+      return message.error(res.msg);
+    }
+    const { group } = res.data;
+    console.log(group);
+    message.success(res.msg);
+    _this.groupGather[group.groupId] = group;
+  },
+  async joinGroup(res: ServerRes, _this: ChatStoreType) {
+    if (res.code) {
+      return message.error(res.msg);
+    }
+    const appStore = useAppStore();
+    const { user, group } = res.data;
+    if (user.userId != appStore.user.userId) {
+      //别人加入群
+      message.info(`${user.userName}加入群${group.groupName}`);
+      _this.userGather[user.userId] = user;
+    } else {
+      //用户自己加入到某个群
+      if (!_this.groupGather[group.groupId]) {
+        _this.groupGather[group.groupId] = group;
+        _this.emit(EventName.CHAT_DATA, user);
+      }
+      message.info(`成功加入群${group.groupName}`);
+      // _this.activeRoom = group;
+    }
+  },
   async joinGroupSocket(res: ServerRes, _this: ChatStoreType) {},
   async groupMessage(res: ServerRes, _this: ChatStoreType) {},
   async addFriend(res: ServerRes, _this: ChatStoreType) {},
@@ -44,10 +74,10 @@ export const eventCallback: EventCallbackType = {
       //加入已经添加的好友私聊房间
       for (const friend of friendData) {
         _this.emit(EventName.JOIN_FRIEND_SOCKET, {
-          friendId: friend.friendId,
+          friendId: friend.userId,
           userId: appStore.user.userId,
         });
-        _this.friendGather[friend.friendId] = friend;
+        _this.friendGather[friend.userId] = friend;
       }
     }
     if (userData.length) {
@@ -58,6 +88,12 @@ export const eventCallback: EventCallbackType = {
   },
   async exitGroup(res: ServerRes, _this: ChatStoreType) {},
   async exitFriend(res: ServerRes, _this: ChatStoreType) {},
+  async activeGroupUser(res: ServerRes, _this: ChatStoreType) {
+    _this.activeGroupUser = res.data;
+    for (const user of Object.values(_this.activeGroupUser[DEFAULT_GROUP])) {
+      _this.userGather[user.userId] = user;
+    }
+  },
 };
 
 export const initSocketEvent = (socket: Socket, _this: ChatStoreType) => {
