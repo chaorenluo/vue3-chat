@@ -28,7 +28,6 @@ export const eventCallback: EventCallbackType = {
       return message.error(res.msg);
     }
     const { group } = res.data;
-    console.log(group);
     message.success(res.msg);
     _this.groupGather[group.groupId] = group;
   },
@@ -50,6 +49,7 @@ export const eventCallback: EventCallbackType = {
       }
       message.info(`成功加入群${group.groupName}`);
       // _this.activeRoom = group;
+      _this.setActiveRoom(group);
     }
   },
   async joinGroupSocket(res: ServerRes, _this: ChatStoreType) {},
