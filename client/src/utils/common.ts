@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios';
 import { message } from 'ant-design-vue';
+import dayjs from 'dayjs';
 export const processReturn = (res: AxiosResponse<ServerRes>) => {
   // code 0:成功 1:错误 2:后端报错
   if (!res) {
@@ -69,4 +70,24 @@ export function isContainStr(str1: string, str2: string) {
  */
 export function parseText(text: string) {
   return text;
+}
+
+/**
+ * 消息时间格式化
+ * @param time
+ */
+export function formatTime(time: number) {
+  // 大于昨天
+  if (dayjs().add(-1, 'days').startOf('day').valueOf() > time) {
+    return dayjs(time).format('M/D HH:mm');
+  }
+  // 昨天
+  if (dayjs().startOf('day').valueOf() > time) {
+    return '昨天 ' + dayjs(time).format('HH:mm');
+  }
+  // 大于五分钟不显示秒
+  if (new Date().valueOf() > time + 300000) {
+    return dayjs(time).format('HH:mm');
+  }
+  return dayjs(time).format('HH:mm:ss');
 }

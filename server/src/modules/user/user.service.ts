@@ -7,12 +7,26 @@ import { RCode } from '../../common/constant';
 import { CustomException } from '../../common/filters/CustomException';
 import { createWriteStream } from 'fs';
 import { Express } from 'express';
+import { UserMap } from '../friend/entity/friend.entity';
+import { Group, GroupMap } from '../group/entity/group.entity';
+import { GroupMessage } from '../group/entity/groupMessage.entity';
+import { FriendMessage } from '../friend/entity/friendMessage.entity';
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(User)
-        private readonly userRepository: Repository<User>
+        private readonly userRepository: Repository<User>,
+        @InjectRepository(UserMap)
+        private readonly userMapRepository: Repository<UserMap>,
+        @InjectRepository(Group)
+        private readonly groupRepository: Repository<Group>,
+        @InjectRepository(GroupMap)
+        private readonly groupMapRepository: Repository<GroupMap>,
+        @InjectRepository(GroupMessage)
+        private readonly groupMessageRepository: Repository<GroupMessage>,
+        @InjectRepository(FriendMessage)
+        private readonly friendMessageRepository: Repository<FriendMessage>
     ) {}
 
     async updateUserName(user: User, userName: string) {
@@ -62,6 +76,36 @@ export class UserService {
             return { msg: '修改头像成功', data: user };
         } catch (e) {
             throw new CustomException('修改头像失败:' + e, RCode.FAIL);
+        }
+    }
+
+    async delUser(user: User, did: string) {
+        try {
+            if (!did) {
+                throw new CustomException('缺少被删除用户的id:', RCode.FAIL);
+            }
+            if (user.role === 'admin') {
+                //删除用户自己创建的群
+                const groups = await this.groupRepository.find({ userId: did });
+                for (const group of groups) {
+                    await this.groupMessageRepository.delete({ groupId: group.groupId });
+                    await this.groupMapRepository.delete({ groupId: group.groupId });
+                    await this.groupRepository.delete({ groupId: group.groupId });
+                }
+                //删除加入的群
+                await this.groupMapRepository.delete({ userId: did });
+                await this.groupMessageRepository.delete({ userId: did });
+                //被删除的用户好友
+                await this.userMapRepository.delete({ friendId: did });
+                await this.userMapRepository.delete({ userId: did });
+                await this.friendMessageRepository.delete({ userId: did });
+                await this.friendMessageRepository.delete({ friendId: did });
+                await this.userRepository.delete({ userId: did });
+                return { msg: '用户删除成功' };
+            }
+            return { code: RCode.FAIL, msg: '用户删除失败' };
+        } catch (e) {
+            throw new CustomException('缺少被删除用户的id:' + e, RCode.FAIL);
         }
     }
 }

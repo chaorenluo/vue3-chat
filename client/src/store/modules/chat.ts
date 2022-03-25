@@ -48,8 +48,8 @@ export const useChatStore = defineStore({
       this.unReadGather[id] = 0;
     },
     //设置当前聊天对象
-    setActiveRoom(data: Group & Friend) {
-      this.activeRoom = data;
+    setActiveRoom(data: Group | Friend) {
+      this.activeRoom = data as any;
     },
   },
 });

@@ -18,11 +18,12 @@
       <genal-room @set-active-room="setActiveRoom" />
     </div>
     <div class="chat-part3">
-      <TeamOutlined class="chat-team" />
+      <TeamOutlined class="chat-team" @click="toggleDrawer" />
       <div class="chat-tool">
         <MenuFoldOutlined />
         <MenuUnfoldOutlined />
       </div>
+      <genal-message v-if="chatStore.activeRoom" />
     </div>
     <genal-join
       @register="handleRegister"
@@ -41,12 +42,14 @@
   import GenalJoin from '@components/GenalJoin.vue';
   import GenalSearch from '@components/GenalSearch.vue';
   import GenalRoom from '@components/GenalRoom.vue';
+  import GenalMessage from '@components/GenalMessage.vue';
   import { ref } from 'vue';
   import { EventName } from '@utils/socket/handleSocketEvent';
 
   const appStore = useAppStore();
   const chatStore = useChatStore();
   const loadingRef = ref(false);
+  const visibleDrawerRef = ref(false);
   const { showModalRef, getUser } = useUser();
   getUser();
 
@@ -106,6 +109,10 @@
 
   const setActiveRoom = (room: Friend & Group) => {
     chatStore.setActiveRoom(room);
+  };
+
+  const toggleDrawer = () => {
+    visibleDrawerRef.value = !visibleDrawerRef.value;
   };
 </script>
 

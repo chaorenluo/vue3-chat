@@ -143,7 +143,7 @@
         position: absolute;
         right: 10px;
         top: 10px;
-        ::v-deep.ant-badge-count {
+        :v-deep(.ant-badge-count) {
           box-shadow: none;
         }
       }

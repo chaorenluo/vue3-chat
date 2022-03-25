@@ -9,6 +9,8 @@ import {
   TeamOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  SyncOutlined,
+  UserDeleteOutlined,
 } from '@ant-design/icons-vue';
 
 import { App } from 'vue';
@@ -25,6 +27,8 @@ export const setupIcon = (app: App<Element>) => {
     TeamOutlined,
     MenuFoldOutlined,
     MenuUnfoldOutlined,
+    SyncOutlined,
+    UserDeleteOutlined,
   };
 
   for (const componentKey in component) {

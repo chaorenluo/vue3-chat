@@ -34,4 +34,8 @@ export class UserController {
     setUserAvatar(@Request() req, @UploadedFile() file: Express.Multer.File) {
         return this.UserService.setUserAvatar(req.user, file);
     }
+    @Post('/delUser')
+    delUser(@Request() req, @Body('did') did: string) {
+        return this.UserService.delUser(req.user, did);
+    }
 }

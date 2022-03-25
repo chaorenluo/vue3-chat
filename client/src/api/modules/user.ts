@@ -63,7 +63,7 @@ const user = {
    * @param params
    */
   deleteUser(params: any) {
-    return fetch.delete('/user/del', { params });
+    return fetch.post('/user/delUser', params);
   },
 };
 

@@ -18,7 +18,6 @@ import {
   Drawer,
   Popconfirm,
   Badge,
-  Menu,
   MenuItem,
 } from 'ant-design-vue';
 export const setupDesign = (app: App<Element>) => {
