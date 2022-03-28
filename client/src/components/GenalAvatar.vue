@@ -1,6 +1,6 @@
 <template>
-  <div class="avatar" v-if="props.data">
-    <a-popover v-if="data.userId !== user.userId" trigger="click">
+  <div class="avatar" v-if="props.data.userId">
+    <a-popover v-if="props.data.userId != user.userId" trigger="click">
       <template #content>
         <div class="avatar-card">
           <a-avatar :size="60" :src="props.data.avatar" />
@@ -22,9 +22,13 @@
           <a-button @click="addFriend(data.userId)" type="primary" v-else>添加好友</a-button>
         </div>
       </template>
-
-      <a-avatar class="avatar-img" :src="chatStore.userGather[data.userId].avatar" />
+      <a-avatar class="avatar-img" :src="props.data.avatar" />
     </a-popover>
+    <a-avatar v-else class="avatar-img" :src="props.data.avatar" />
+    <div>
+      <span class="avatar-name">{{ props.data.userName }}</span>
+      <span class="avatar-time" v-if="showTime">{{ _formatTime(props.data.createTime) }}</span>
+    </div>
   </div>
 </template>
 

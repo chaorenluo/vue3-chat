@@ -17,7 +17,9 @@
         >
           <div class="active-content" v-if="currentGroupData">
             <div class="actiev-content-title">群聊管理</div>
-            <div class="active-content-sum">在线人数: {{ currentGroupData.length }}</div>
+            <div class="active-content-sum"
+              >在线人数: {{ Object.keys(currentGroupData).length }}</div
+            >
             <div class="active-content-users">
               <div class="active-content-user" v-for="data in currentGroupData" :key="data.userId">
                 <genal-avatar :data="data" :showTime="false" />
@@ -47,6 +49,7 @@
   import GenalAvatar from './GenalAvatar.vue';
   import { useAppStore } from '@store/app';
   import { useChatStore } from '@store/chat';
+  import { EventName } from '@/utils/socket/handleSocketEvent';
 
   interface Props {
     type: string;
@@ -67,7 +70,6 @@
 
   const currentGroupData = computed(() => {
     if (chatStore.activeRoom && chatStore.activeRoom?.groupId) {
-      console.log(chatStore.activeGroupUser[chatStore.activeRoom?.groupId]);
       return chatStore.activeGroupUser[chatStore.activeRoom?.groupId];
     }
     return [];
@@ -81,9 +83,19 @@
     return document.getElementsByClassName('message')[0];
   };
 
-  const exitGroup = () => {};
+  const exitGroup = () => {
+    chatStore.emit(EventName.EXIT_GROUP, {
+      userId: appStore.user.userId,
+      groupId: chatStore.activeRoom?.groupId,
+    });
+  };
 
-  const exitFriend = () => {};
+  const exitFriend = () => {
+    chatStore.emit(EventName.EXIT_FRIEND, {
+      userId: appStore.user.userId,
+      friendId: chatStore.activeRoom?.userId,
+    });
+  };
 </script>
 <style lang="scss" scoped>
   .active {

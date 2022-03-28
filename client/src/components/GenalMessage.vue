@@ -7,6 +7,50 @@
         <genal-active :type="isGroup ? 'group' : 'friend'" />
       </div>
     </div>
+    <transition name="loading">
+      <div class="message-loading" v-if="spinningRef && !isNoDataRef">
+        <SyncOutlined spin class="message-loading-icon" />
+      </div>
+    </transition>
+    <div class="message-main" :style="{ opacity: messageOpacityRef }">
+      <div class="message-content">
+        <transition name="noData">
+          <div class="message-content-noData" v-if="isNoDataRef">没有更多消息了~</div>
+        </transition>
+        <template v-for="item in chatStore.activeRoom?.messages" :key="item.userId + item.time">
+          <div
+            class="message-content-message"
+            :class="{ 'text-right': item.userId === appStore.user.userId }"
+          >
+            <genal-avatar :data="item" />
+            <div>
+              <a
+                class="message-content-text"
+                v-if="_isUrl(item.content)"
+                :href="item.content"
+                target="_blank"
+                >{{ item.content }}</a
+              >
+              <div
+                class="message-content-text"
+                v-text="_parseText(item.content)"
+                v-else-if="item.messageType === 'text'"
+              ></div>
+              <div
+                class="message-content-image"
+                v-if="item.messageType === 'image'"
+                :style="getImageStyle(item.content)"
+              >
+                <viewer style="display: flex; align-items: center">
+                  <img :src="'api/static/' + item.content" alt="" />
+                </viewer>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+    <genal-input />
   </div>
 </template>
 
@@ -15,9 +59,15 @@
   import { useAppStore } from '@store/app';
   import { useChatStore } from '@store/chat';
   import GenalActive from './GenalActive.vue';
+  import GenalAvatar from './GenalAvatar.vue';
+  import GenalInput from './GenalInput.vue';
+  import { isUrl, parseText } from '@/utils/common';
 
   const appStore = useAppStore();
   const chatStore = useChatStore();
+  const spinningRef = ref(false);
+  const isNoDataRef = ref(false);
+  const messageOpacityRef = ref(1);
 
   const isGroup = computed(() => {
     if (chatStore.activeRoom && chatStore.activeRoom?.groupId) {
@@ -33,6 +83,38 @@
     }
     return '';
   });
+
+  const _isUrl = (url: string) => {
+    return isUrl(url);
+  };
+
+  const _parseText = (txt: string) => {
+    return parseText(txt);
+  };
+
+  /**
+   * 根据图片url设置图片框宽高, 注意是图片框
+   */
+  const getImageStyle = (src: string) => {
+    let arr = src.split('$');
+    let width = Number(arr[2]);
+    let height = Number(arr[3]);
+    if (appStore.mobile) {
+      // 如果是移动端,图片最大宽度138, 返回值加12是因为设置的是图片框的宽高要加入padding值
+      if (width > 138) {
+        height = (height * 138) / width;
+        width = 138;
+        return {
+          width: `${width + 12}px`,
+          height: `${height + 12}px`,
+        };
+      }
+    }
+    return {
+      width: `${width + 12}px`,
+      height: `${height + 12}px`,
+    };
+  };
 </script>
 
 <style lang="scss" scoped>

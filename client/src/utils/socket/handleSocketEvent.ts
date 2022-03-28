@@ -54,8 +54,26 @@ export const eventCallback: EventCallbackType = {
   },
   async joinGroupSocket(res: ServerRes, _this: ChatStoreType) {},
   async groupMessage(res: ServerRes, _this: ChatStoreType) {},
-  async addFriend(res: ServerRes, _this: ChatStoreType) {},
-  async joinFriendSocket(res: ServerRes, _this: ChatStoreType) {},
+  async addFriend(res: ServerRes, _this: ChatStoreType) {
+    if (!res.code) {
+      const appStore = useAppStore();
+      _this.friendGather[res.data.userId] = res.data;
+      _this.setActiveRoom(_this.friendGather[res.data.userId]);
+      message.info(res.msg);
+      console.log(appStore.user.userId, res.data.userId);
+      _this.emit(EventName.JOIN_FRIEND_SOCKET, {
+        userId: appStore.user.userId,
+        friendId: res.data.userId,
+      });
+    } else {
+      message.info(res.msg);
+    }
+  },
+  async joinFriendSocket(res: ServerRes, _this: ChatStoreType) {
+    if (!res.code) {
+      console.log('成功加入私聊房间');
+    }
+  },
   async friendMessage(res: ServerRes, _this: ChatStoreType) {},
   async chatData(res: ServerRes, _this: ChatStoreType) {
     const { friendData, groupData, userData } = res.data;
@@ -86,8 +104,16 @@ export const eventCallback: EventCallbackType = {
       }
     }
   },
-  async exitGroup(res: ServerRes, _this: ChatStoreType) {},
-  async exitFriend(res: ServerRes, _this: ChatStoreType) {},
+  async exitGroup(res: ServerRes, _this: ChatStoreType) {
+    delete _this.groupGather[res.data.groupId];
+    _this.setActiveRoom(_this.groupGather[DEFAULT_GROUP]);
+    message.success(res.msg);
+  },
+  async exitFriend(res: ServerRes, _this: ChatStoreType) {
+    delete _this.friendGather[res.data.friendId];
+    _this.setActiveRoom(_this.groupGather[DEFAULT_GROUP]);
+    message.success(res.msg);
+  },
   async activeGroupUser(res: ServerRes, _this: ChatStoreType) {
     _this.activeGroupUser = res.data;
     for (const user of Object.values(_this.activeGroupUser[DEFAULT_GROUP])) {

@@ -91,3 +91,13 @@ export function formatTime(time: number) {
   }
   return dayjs(time).format('HH:mm:ss');
 }
+
+/**
+ * 判断是否URL
+ * @param text 文本
+ */
+export function isUrl(text: string) {
+  // 解析网址
+  const UrlReg = new RegExp(/http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?/);
+  return UrlReg.test(text);
+}
