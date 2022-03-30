@@ -22,7 +22,7 @@
             >
             <div class="active-content-users">
               <div class="active-content-user" v-for="data in currentGroupData" :key="data.userId">
-                <genal-avatar :data="data" :showTime="false" />
+                <genal-avatar :data="data" :show-time="false" />
                 {{ data.userName }}
               </div>
             </div>

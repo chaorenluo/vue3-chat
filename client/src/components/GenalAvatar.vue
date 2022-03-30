@@ -1,10 +1,10 @@
 <template>
-  <div class="avatar" v-if="props.data.userId">
-    <a-popover v-if="props.data.userId != user.userId" trigger="click">
+  <div class="avatar" v-if="userInfo">
+    <a-popover v-if="userInfo.userId != user.userId" trigger="click">
       <template #content>
         <div class="avatar-card">
-          <a-avatar :size="60" :src="props.data.avatar" />
-          <div>{{ props.data.userName }}</div>
+          <a-avatar :size="60" :src="userInfo.avatar" />
+          <div>{{ userInfo.userName }}</div>
           <a-button
             v-if="user.role === 'admin'"
             style="margin-bottom: 5px"
@@ -22,18 +22,18 @@
           <a-button @click="addFriend(data.userId)" type="primary" v-else>添加好友</a-button>
         </div>
       </template>
-      <a-avatar class="avatar-img" :src="props.data.avatar" />
+      <a-avatar class="avatar-img" :src="userInfo.avatar" />
     </a-popover>
-    <a-avatar v-else class="avatar-img" :src="props.data.avatar" />
+    <a-avatar v-else class="avatar-img" :src="userInfo.avatar" />
     <div>
-      <span class="avatar-name">{{ props.data.userName }}</span>
-      <span class="avatar-time" v-if="showTime">{{ _formatTime(props.data.createTime) }}</span>
+      <span class="avatar-name">{{ userInfo.userName }}</span>
+      <span class="avatar-time" v-if="showTime">{{ _formatTime(userInfo.createTime) }}</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { ref, computed } from 'vue';
+  import { computed } from 'vue';
   import { useAppStore } from '@store/app';
   import { useChatStore } from '@store/chat';
   import { EventName } from '@/utils/socket/handleSocketEvent';
@@ -60,6 +60,10 @@
     });
   };
 
+  const userInfo = computed(() => {
+    return chatStore.userGather[props.data.userId];
+  });
+
   const user = computed(() => {
     return appStore.user;
   });
@@ -69,7 +73,7 @@
   };
 
   const deleteUser = async (userId: string) => {
-    const res = await apis.user.deleteUser({
+    await apis.user.deleteUser({
       did: userId,
     });
   };

@@ -51,5 +51,30 @@ export const useChatStore = defineStore({
     setActiveRoom(data: Group | Friend) {
       this.activeRoom = data as any;
     },
+    addFriendMessage(data: FriendMessage) {
+      const appStore = useAppStore();
+      const userId = appStore.user.userId;
+      if (data.friendId === userId) {
+        if (this.friendGather[data.userId].messages) {
+          this.friendGather[data.userId].messages?.push(data);
+        } else {
+          this.friendGather[data.userId]['messages'] = [data];
+        }
+      } else {
+        if (this.friendGather[data.friendId].messages) {
+          this.friendGather[data.friendId].messages?.push(data);
+        } else {
+          this.friendGather[data.friendId]['messages'] = [data];
+        }
+      }
+    },
+    setUnreadGather(payload: string) {
+      console.log('---5');
+      if (!this.unReadGather[payload]) {
+        this.unReadGather[payload] = 1;
+      } else {
+        ++this.unReadGather[payload];
+      }
+    },
   },
 });

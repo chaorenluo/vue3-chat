@@ -72,3 +72,17 @@ interface FriendMessage {
   time: number;
   type?: string;
 }
+
+interface SendMessage {
+  type: string;
+  message: string | File;
+  width?: number;
+  height?: number;
+  messageType: MessageType[0] | MessageType[1];
+}
+
+// 图片尺寸
+interface ImageSize {
+  width: number;
+  height: number;
+}

@@ -22,7 +22,7 @@
             class="message-content-message"
             :class="{ 'text-right': item.userId === appStore.user.userId }"
           >
-            <genal-avatar :data="item" />
+            <genal-avatar :data="item" :showTime="false" />
             <div>
               <a
                 class="message-content-text"

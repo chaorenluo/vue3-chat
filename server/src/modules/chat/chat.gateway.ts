@@ -64,6 +64,8 @@ export class ChatGateway {
         return data.userId > data.friendId ? data.userId + data.friendId : data.friendId + data.userId;
     }
 
+    checkFile(path: string) {}
+
     handleMessageType<T extends MessageDto>(data: T, id?: string): T {
         if (data.messageType === 'image') {
             const randomName = `${Date.now()}$${id}$${data.width}$${data.height}`;

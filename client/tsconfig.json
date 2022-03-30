@@ -17,9 +17,10 @@
       "@utils/*": ["./src/utils/*"],
       "@store/*":["./src/store/modules/*"],
       "@components/*": ["./src/components/*"],
-      "@enum/*": ["./src/enum/*"]
+      "@enum/*": ["./src/enum/*"],
+      "@hooks/*":["./src/hooks/*"]
     }
-  },
+  }, 
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

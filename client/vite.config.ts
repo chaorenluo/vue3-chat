@@ -17,6 +17,7 @@ export default defineConfig({
       '@store': pathResolve('./src/store/modules'),
       '@components': pathResolve('./src/components'),
       '@enum': pathResolve('./src/enum'),
+      '@hooks': pathResolve('./src/hooks'),
     },
   },
   server: {

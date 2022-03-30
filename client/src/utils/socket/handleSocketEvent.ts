@@ -52,7 +52,11 @@ export const eventCallback: EventCallbackType = {
       _this.setActiveRoom(group);
     }
   },
-  async joinGroupSocket(res: ServerRes, _this: ChatStoreType) {},
+  async joinGroupSocket(res: ServerRes, _this: ChatStoreType) {
+    if (res.code) {
+      return message.error(res.msg);
+    }
+  },
   async groupMessage(res: ServerRes, _this: ChatStoreType) {},
   async addFriend(res: ServerRes, _this: ChatStoreType) {
     if (!res.code) {
@@ -74,7 +78,24 @@ export const eventCallback: EventCallbackType = {
       console.log('成功加入私聊房间');
     }
   },
-  async friendMessage(res: ServerRes, _this: ChatStoreType) {},
+  async friendMessage(res: ServerRes, _this: ChatStoreType) {
+    if (!res.code) {
+      const appStore = useAppStore();
+      if (res.data.friendId === appStore.user.userId || res.data.userId === appStore.user.userId) {
+        _this.addFriendMessage(res.data);
+        if (!_this.activeRoom || _this.activeRoom?.groupId) {
+          _this.setUnreadGather(res.data.userId);
+        } else if (
+          _this.activeRoom.userId !== res.data.userId &&
+          _this.activeRoom.userId !== res.data.friendId
+        ) {
+          _this.setUnreadGather(res.data.userId);
+        }
+      }
+    } else {
+      message.error(res.msg);
+    }
+  },
   async chatData(res: ServerRes, _this: ChatStoreType) {
     const { friendData, groupData, userData } = res.data;
     const appStore = useAppStore();
