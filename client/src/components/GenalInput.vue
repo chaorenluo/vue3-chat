@@ -1,5 +1,25 @@
 <template>
   <div class="message-input" v-if="activeRoom">
+    <a-popover placement="topLeft" trigger="hover" class="message-popver">
+      <template #content>
+        <a-tabs default-key="1" size="small">
+          <a-tab-pane key="1" tab="Emoji">
+            <genal-emoji @add-emoji="addEmoji" />
+          </a-tab-pane>
+          <a-tab-pane key="2" tab="工具">
+            <div class="message-tool-item">
+              <a-upload :show-upload-list="false" :before-upload="beforeImgUpload">
+                <div class="message-tool-contant">
+                  <img src="~@/assets/photo.png" class="message-tool-item-img" alt="" />
+                  <div class="message-tool-item-text">图片</div>
+                </div>
+              </a-upload>
+            </div>
+          </a-tab-pane>
+        </a-tabs>
+      </template>
+      <div class="messagte-tool-icon">😃</div>
+    </a-popover>
     <a-input
       autocomplete="off"
       type="text"
@@ -26,16 +46,16 @@
   import { message } from 'ant-design-vue';
   import { EventName } from '@/utils/socket/handleSocketEvent';
   import { useClipboardImg } from '@hooks/useClipboardImg';
+  import GenalEmoji from './GenalEmoji.vue';
 
   const appStore = useAppStore();
   const chatStore = useChatStore();
   const textRef = ref('');
-  const inputRef = ref<HTMLElement | null>(null);
+  const inputRef = ref<HTMLFormElement | null>(null);
   const lastTimeRef = ref(0);
 
-  useClipboardImg(
+  const { handleImgUpload } = useClipboardImg(
     (data) => {
-      console.log(data);
       sendMessage({
         type: chatStore.activeRoom?.groupId ? 'group' : 'friend',
         message: data.imageFile,
@@ -48,6 +68,11 @@
       message.error(error);
     },
   );
+
+  const beforeImgUpload = (file: File) => {
+    throttle(handleImgUpload, file);
+    return false;
+  };
 
   const activeRoom = computed(() => {
     return chatStore.activeRoom;
@@ -94,13 +119,57 @@
     }
   };
 
-  const throttle = (fn: Function) => {
+  const throttle = (fn: Function, file?: File) => {
     let nowTime = +new Date();
     if (nowTime - lastTimeRef.value < 500) {
       return message.error('消息发送太频繁！');
     }
-    fn();
+    fn(file);
     lastTimeRef.value = nowTime;
+  };
+
+  /**
+   * 添加emoji到input
+   */
+  const addEmoji = (emoji: string) => {
+    const inputDom = inputRef.value?.$el;
+    console.log('inputDom?.selectionStart---', inputDom?.$el);
+    if (inputDom?.selectionStart || inputDom?.selectionStart === '0') {
+      // 得到光标前的位置
+      const startPos = inputDom.selectionStart;
+      // 得到光标后的位置
+      const endPos = inputDom.selectionEnd;
+      // 在加入数据之前获得滚动条的高度
+      const restoreTop = inputDom.scrollTop;
+      // emoji表情插入至当前光标指定位置
+      textRef.value =
+        textRef.value.substring(0, startPos) +
+        emoji +
+        textRef.value.substring(endPos, textRef.value.length);
+      // 如果滚动条高度大于0
+      if (restoreTop > 0) {
+        // 返回
+        inputDom.scrollTop = restoreTop;
+      }
+      inputDom.focus();
+      // 设置光标位置至emoji表情后一位
+      const position = startPos + emoji.length;
+      if (inputDom.setSelectionRange) {
+        inputDom.focus();
+        setTimeout(() => {
+          inputDom.setSelectionRange(position, position);
+        }, 10);
+      } else if (inputDom.createTextRange) {
+        const range = inputDom.createTextRange();
+        range.collapse(true);
+        range.moveEnd('character', position);
+        range.moveStart('character', position);
+        range.select();
+      }
+    } else {
+      textRef.value += emoji;
+      inputDom?.focus();
+    }
   };
 </script>
 

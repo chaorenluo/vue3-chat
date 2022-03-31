@@ -57,14 +57,25 @@ export const eventCallback: EventCallbackType = {
       return message.error(res.msg);
     }
   },
-  async groupMessage(res: ServerRes, _this: ChatStoreType) {},
+  async groupMessage(res: ServerRes, _this: ChatStoreType) {
+    if (!res.code) {
+      if (_this.groupGather[res.data.groupId].messages) {
+        _this.groupGather[res.data.groupId].messages?.push(res.data);
+      } else {
+        _this.groupGather[res.data.groupId]['messages'] = [res.data];
+      }
+      if (_this.activeRoom?.groupId != res.data.groupId) {
+        _this.setUnreadGather(res.data.groupId);
+      }
+    } else {
+      message.error(res.msg);
+    }
+  },
   async addFriend(res: ServerRes, _this: ChatStoreType) {
     if (!res.code) {
       const appStore = useAppStore();
       _this.friendGather[res.data.userId] = res.data;
       _this.setActiveRoom(_this.friendGather[res.data.userId]);
-      message.info(res.msg);
-      console.log(appStore.user.userId, res.data.userId);
       _this.emit(EventName.JOIN_FRIEND_SOCKET, {
         userId: appStore.user.userId,
         friendId: res.data.userId,

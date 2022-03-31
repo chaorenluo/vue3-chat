@@ -69,7 +69,6 @@ export const useChatStore = defineStore({
       }
     },
     setUnreadGather(payload: string) {
-      console.log('---5');
       if (!this.unReadGather[payload]) {
         this.unReadGather[payload] = 1;
       } else {

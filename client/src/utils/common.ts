@@ -101,3 +101,17 @@ export function isUrl(text: string) {
   const UrlReg = new RegExp(/http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?/);
   return UrlReg.test(text);
 }
+
+/**
+ * 将一维数组切割为二维数组
+ * @param arr 数组
+ * @param cuttingSize 切割大小
+ */
+export const cuttingArr = <T = any>(arr: Array<T>, cuttingSize: number): Array<Array<T>> => {
+  const count = Math.ceil(arr.length) / cuttingSize;
+  const list = [];
+  for (let i = 0; i < count; i++) {
+    list.push(arr.slice(i * cuttingSize, (i + 1) * cuttingSize));
+  }
+  return list;
+};

@@ -1,5 +1,4 @@
-import { onMounted, onUnmounted, ref } from 'vue';
-import debounce from 'lodash.debounce';
+import { onMounted, onUnmounted } from 'vue';
 
 type shearData = {
   imageFile: File;
@@ -80,5 +79,5 @@ export const useClipboardImg = (shearSuccess: successCallback, shearError: error
     document.removeEventListener('paste', getClipboardContent);
   });
 
-  return {};
+  return { handleImgUpload };
 };
